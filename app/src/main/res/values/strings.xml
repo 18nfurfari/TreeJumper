@@ -20,4 +20,5 @@
         Your high-score will be saved and displayed during each run.</string>
     <string name="leaderboard">Leaderboard</string>
     <string name="score">score</string>
+    <string name="save">Save</string>
 </resources>

@@ -3,13 +3,17 @@ package com.example.cmpsc475project1;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -28,6 +32,9 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
     private int currentScore;
     private ScoreViewModel scoreViewModel;
+    private SwitchCompat soundSwitch;
+    private RadioGroup radioGroup;
+    private SharedPreferences sharedPref;
 
 
     @Override
@@ -35,19 +42,43 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        View view = LayoutInflater.from(this).inflate(R.layout.settings, null);
+        soundSwitch = view.findViewById(R.id.soundSwitch);
+        radioGroup = view.findViewById(R.id.radioGroup);
+
+        SharedPreferences sharedPreferences = getSharedPreferences("MySettings", MODE_PRIVATE);
+
+        // Check if shared prefs exist first
+        if (!sharedPreferences.contains("switch_setting") && !sharedPreferences.contains("radio_button")) {
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+
+            // Setting default values
+            editor.putBoolean("switch_setting", true);
+            editor.putInt("radio_button", R.id.ninjaRadioButton);
+            editor.apply();
+        }
 
         ScoreDatabase db = Room.databaseBuilder(getApplicationContext(),
                 ScoreDatabase.class, "score-database").allowMainThreadQueries().build();
 
-        // View scoresListView = LayoutInflater.from(this).inflate(R.layout.leaderboard, null);
+    }
 
-//        RecyclerView recyclerView = scoresListView.findViewById(R.id.lstScores);
-//        ScoreListAdapter adapter = new ScoreListAdapter(this);
-//        recyclerView.setAdapter(adapter);
-//        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+    @Override
+    public void onPause() {
+        super.onPause();
+        saveSettings();
+    }
 
-//        scoreViewModel = new ViewModelProvider(this).get(ScoreViewModel.class);
-//        scoreViewModel.getScores().observe(this, adapter::setScores);
+    public void saveSettingsOnClick(View view) {
+        saveSettings();
+    }
+
+    public void saveSettings() {
+        SharedPreferences sharedPreferences = getSharedPreferences("MySettings", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean("switch_setting", soundSwitch.isChecked());
+        editor.putInt("radio_button", radioGroup.getCheckedRadioButtonId());
+        editor.apply();
     }
 
     public class ScoreListAdapter extends RecyclerView.Adapter<ScoreListAdapter.ScoreViewHolder> {
@@ -127,7 +158,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void settingsOnClick(View view) {
-        setContentView(R.layout.settings);
+        View settingsView = LayoutInflater.from(this).inflate(R.layout.settings, null);
+
+        soundSwitch = settingsView.findViewById(R.id.soundSwitch);
+        radioGroup = settingsView.findViewById(R.id.radioGroup);
+
+        SharedPreferences sharedPreferences = getSharedPreferences("MySettings", MODE_PRIVATE);
+        boolean switchSetting = sharedPreferences.getBoolean("switch_setting", true);
+        int radioButtonId = sharedPreferences.getInt("radio_button", radioGroup.getCheckedRadioButtonId());
+
+        soundSwitch.setChecked(switchSetting);
+        radioGroup.check(radioButtonId);
+
+        setContentView(settingsView);
+
     }
 
     public void leaderboardOnClick(View view) {

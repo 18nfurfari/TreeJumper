@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <SwitchPreferenceCompat
+        android:key="switch_setting"
+        android:title="Sound effects"
+        android:defaultValue="true" />
+
+    <Preference
+        android:key="character_selection"
+        android:title="Player characters"
+        android:widgetLayout="@layout/settings" />
+</PreferenceScreen>
