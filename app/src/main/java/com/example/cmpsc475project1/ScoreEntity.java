@@ -12,6 +12,14 @@ public class ScoreEntity {
         this.score = score;
     }
 
+    public ScoreEntity() {
+        this.id = 0;
+        this.name = "Player";
+        this.score = 0;
+    }
+
+
+
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "rowid")
     public int id;

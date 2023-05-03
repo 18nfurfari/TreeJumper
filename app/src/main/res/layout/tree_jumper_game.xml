@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <Button
+        android:id="@+id/jumpButton"
+        android:layout_width="329dp"
+        android:layout_height="174dp"
+        android:layout_marginBottom="16dp"
+        android:text="@string/jump"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:onClick="jumpOnClick" />
+
+    <ImageView
+        android:id="@+id/grassView"
+        android:layout_width="411dp"
+        android:layout_height="47dp"
+        android:layout_marginBottom="188dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/grass_flat" />
+
+<!--    <ImageView-->
+<!--        android:id="@+id/characterView"-->
+<!--        android:layout_width="66dp"-->
+<!--        android:layout_height="69dp"-->
+<!--        app:srcCompat="@drawable/ninja_final"-->
+<!--        tools:layout_editor_absoluteX="41dp"-->
+<!--        tools:layout_editor_absoluteY="427dp" />-->
+
+<!--    <ImageView-->
+<!--        android:id="@+id/treeView"-->
+<!--        android:layout_width="87dp"-->
+<!--        android:layout_height="106dp"-->
+<!--        app:srcCompat="@drawable/tree"-->
+<!--        tools:layout_editor_absoluteX="324dp"-->
+<!--        tools:layout_editor_absoluteY="390dp" />-->
+
+    <com.example.cmpsc475project1.TreeJumperGame
+        android:id="@+id/treeJumperGameView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/jumpButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

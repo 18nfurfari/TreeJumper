@@ -1,8 +1,11 @@
 package com.example.cmpsc475project1;
+import com.example.cmpsc475project1.TreeJumperGame;
+
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -10,6 +13,7 @@ import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
@@ -34,7 +38,9 @@ public class MainActivity extends AppCompatActivity {
     private ScoreViewModel scoreViewModel;
     private SwitchCompat soundSwitch;
     private RadioGroup radioGroup;
-    private SharedPreferences sharedPref;
+    private TreeJumperGame treeJumperGame;
+    private ScoreDatabase db;
+
 
 
     @Override
@@ -46,20 +52,22 @@ public class MainActivity extends AppCompatActivity {
         soundSwitch = view.findViewById(R.id.soundSwitch);
         radioGroup = view.findViewById(R.id.radioGroup);
 
-        SharedPreferences sharedPreferences = getSharedPreferences("MySettings", MODE_PRIVATE);
+//        SharedPreferences sharedPreferences = getSharedPreferences("MySettings", MODE_PRIVATE);
+//
+//        // Check if shared prefs exist first
+//        if (!sharedPreferences.contains("switch_setting") && !sharedPreferences.contains("radio_button")) {
+//            SharedPreferences.Editor editor = sharedPreferences.edit();
+//
+//            // Setting default values
+//            editor.putBoolean("switch_setting", true);
+//            editor.putInt("radio_button", R.id.ninjaRadioButton);
+//            editor.apply();
+//        }
 
-        // Check if shared prefs exist first
-        if (!sharedPreferences.contains("switch_setting") && !sharedPreferences.contains("radio_button")) {
-            SharedPreferences.Editor editor = sharedPreferences.edit();
+        db = Room.databaseBuilder(getApplicationContext(), ScoreDatabase.class, "score-database").allowMainThreadQueries().build();
 
-            // Setting default values
-            editor.putBoolean("switch_setting", true);
-            editor.putInt("radio_button", R.id.ninjaRadioButton);
-            editor.apply();
-        }
-
-        ScoreDatabase db = Room.databaseBuilder(getApplicationContext(),
-                ScoreDatabase.class, "score-database").allowMainThreadQueries().build();
+        //treeJumperGame = findViewById(R.id.treeJumperGameView);
+        //treeJumperGame.setOnGameOverListener(this);
 
     }
 
@@ -93,7 +101,6 @@ public class MainActivity extends AppCompatActivity {
                 scoreView = itemView.findViewById(R.id.listItemNumber);
             }
         }
-
 
         private LayoutInflater layoutInflater;
         private List<ScoreEntity> scores;
@@ -150,45 +157,72 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startOnClick(View view) {
-        // TODO: actual gameplay layout
+        setContentView(R.layout.tree_jumper_game);
+
+        Button jumpButton = findViewById(R.id.jumpButton);
+        treeJumperGame = findViewById(R.id.treeJumperGameView);
+
+//        jumpButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                treeJumperGame.jump();
+//            }
+//        });
     }
+
+    public void jumpOnClick(View view) {
+        treeJumperGame.jump();
+    }
+
+    public void onGameOver(int score) {
+        // Save score to the database
+        ScoreEntity scoreEntity = new ScoreEntity();
+        scoreEntity.score = score;
+        scoreEntity.name = "Player"; // You can replace this with the player's name, if you have it
+        db.scoreDAO().insert(scoreEntity);
+    }
+
 
     public void howToOnClick(View view) {
         setContentView(R.layout.how_to_play);
     }
 
     public void settingsOnClick(View view) {
-        View settingsView = LayoutInflater.from(this).inflate(R.layout.settings, null);
-
-        soundSwitch = settingsView.findViewById(R.id.soundSwitch);
-        radioGroup = settingsView.findViewById(R.id.radioGroup);
-
-        SharedPreferences sharedPreferences = getSharedPreferences("MySettings", MODE_PRIVATE);
-        boolean switchSetting = sharedPreferences.getBoolean("switch_setting", true);
-        int radioButtonId = sharedPreferences.getInt("radio_button", radioGroup.getCheckedRadioButtonId());
-
-        soundSwitch.setChecked(switchSetting);
-        radioGroup.check(radioButtonId);
-
-        setContentView(settingsView);
+//        View settingsView = LayoutInflater.from(this).inflate(R.layout.settings, null);
+//
+//        soundSwitch = settingsView.findViewById(R.id.soundSwitch);
+//        radioGroup = settingsView.findViewById(R.id.radioGroup);
+//
+//        SharedPreferences sharedPreferences = getSharedPreferences("MySettings", MODE_PRIVATE);
+//        boolean switchSetting = sharedPreferences.getBoolean("switch_setting", true);
+//        int radioButtonId = sharedPreferences.getInt("radio_button", radioGroup.getCheckedRadioButtonId());
+//
+//        soundSwitch.setChecked(switchSetting);
+//        radioGroup.check(radioButtonId);
+//
+//        setContentView(settingsView);
+        Intent settingsIntent = new Intent(this, SettingsActivity.class);
+        startActivity(settingsIntent);
 
     }
 
     public void leaderboardOnClick(View view) {
         setContentView(R.layout.leaderboard);
 
-        View scoresListView = LayoutInflater.from(this).inflate(R.layout.leaderboard, null);
-
-        RecyclerView recyclerView = scoresListView.findViewById(R.id.lstScores);
+        RecyclerView recyclerView = findViewById(R.id.lstScores); // Use findViewById instead of scoresListView.findViewById
         ScoreListAdapter adapter = new ScoreListAdapter(this);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         scoreViewModel = new ViewModelProvider(this).get(ScoreViewModel.class);
-        scoreViewModel.getScores().observe(this, adapter::setScores);
-
-        setContentView(scoresListView);
+        scoreViewModel.getScores().observe(this, new Observer<List<ScoreEntity>>() {
+            @Override
+            public void onChanged(List<ScoreEntity> scoreEntities) {
+                adapter.setScores(scoreEntities);
+            }
+        });
     }
+
 
     public void quitOnClick(View view) {
         // Quit game
